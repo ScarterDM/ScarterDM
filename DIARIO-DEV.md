@@ -15,5 +15,6 @@ Horários de Manaus (UTC−4), agrupados pela hora dos registros de desenvolvime
 | 12h–13h | Desenvolvimento dos serviços de integração editorial, autenticação, sessões e comunicação externa. | Implementação da equipe jornalística, convites, aceitação e sincronização de permissões. |
 | 13h–14h | Evolução da comunicação segura, gerenciamento de sessões e preparação de builds DEV. | Integração da identidade dos jogadores e ativação de acesso ao portal. |
 | 14h–15h | Ajustes na seleção de jogadores e compilação corretiva DEV.7 aprovada em testes automatizados. | Correções de gerenciamento administrativo, seleção de jogadores e mensagens de interface; build DEV.6 aprovada em testes automatizados. |
+| 15h–16h | Compatibilidade com arquivos privados de credenciais em hospedagens gerenciadas; DEV.8 aprovado na compilação automatizada. | DEV.6 mantido, com convites e aceitação de cargos confirmados em jogo. |
 
 **Situação:** validação em jogo pendente. Nenhuma promoção para OFICIAL neste registro.
