@@ -167,3 +167,23 @@
     })
     .catch(() => { loadFailed = window.location.protocol !== 'file:'; renderUpdates(); });
 })();
+
+(() => {
+ const hero=document.querySelector('.hero'); if(!hero)return;
+ const style=document.createElement('style');style.textContent=`
+ @media(pointer:fine){body{cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32'%3E%3Cpath d='M2 2L25 19L14 20L18 29L12 31L8 22L2 27Z' fill='%23e6bf65' stroke='%23593a17' stroke-width='1.5'/%3E%3C/svg%3E") 2 2,auto}a,button{cursor:pointer}}
+ .td-spark{position:absolute;pointer-events:none;z-index:3;border-radius:50%;background:#ffe4a0;box-shadow:0 0 8px #ffc45a;animation:td-drift 1.4s ease-out forwards}
+ @keyframes td-drift{to{transform:translate(var(--dx),var(--dy));opacity:0}}
+ .td-hotspot{position:absolute;z-index:4;border:0;background:transparent;color:#f9e6b6;cursor:pointer;padding:0}
+ .td-hotspot span{display:none;position:absolute;bottom:100%;left:50%;transform:translateX(-50%);width:190px;padding:12px;background:#191b13f5;border:1px solid #e2bd6c;border-radius:8px;font:italic 16px Georgia;box-shadow:0 4px 20px #0008}
+ .td-hotspot:hover span,.td-hotspot:focus span{display:block}
+ @media(max-width:1100px){.td-hotspot{display:none}}
+ @media(prefers-reduced-motion:reduce){.td-spark{display:none}}
+ `;document.head.append(style);
+ const reduced=matchMedia('(prefers-reduced-motion: reduce)');
+ function spark(x,y){if(reduced.matches||hero.querySelectorAll('.td-spark').length>=65)return;const s=document.createElement('i');s.className='td-spark';const size=2+Math.random()*3;Object.assign(s.style,{left:x+'px',top:y+'px',width:size+'px',height:size+'px'});s.style.setProperty('--dx',(Math.random()*60-30)+'px');s.style.setProperty('--dy',(-20-Math.random()*60)+'px');hero.append(s);setTimeout(()=>s.remove(),1450)}
+ let last=0;hero.addEventListener('pointermove',e=>{if(e.pointerType!=='mouse'||performance.now()-last<45)return;last=performance.now();const b=hero.getBoundingClientRect();spark(e.clientX-b.left,e.clientY-b.top)});
+ setInterval(()=>{if(document.hidden||reduced.matches)return;const b=hero.getBoundingClientRect();if(b.bottom<0||b.top>innerHeight)return;spark(Math.random()*b.width,Math.random()*b.height)},220);
+ const people=[['Fada',60,43,12,34,['Vou criar minha família e fazer nosso nome chegar ao trono.','Minha magia protegerá aqueles que amo.']],['Colosso',71,35,15,60,['Fundarei meu clã e conquistarei o império.','Minha força erguerá as muralhas de uma nova civilização.']],['Elfo',87,39,11,58,['Construirei cidades e reinos que jamais serão esquecidos.','A floresta será testemunha das minhas conquistas.']]];
+ for(const [name,x,y,w,h,quotes] of people){const b=document.createElement('button');b.type='button';b.className='td-hotspot';b.setAttribute('aria-label',name+': ouvir personagem');Object.assign(b.style,{left:x+'%',top:y+'%',width:w+'%',height:h+'%'});const s=document.createElement('span');b.append(s);let i=0;const next=()=>{s.textContent=quotes[i++%quotes.length];b.setAttribute('aria-label',name+': '+s.textContent)};next();b.addEventListener('pointerenter',next);b.addEventListener('focus',next);hero.append(b)}
+})();
