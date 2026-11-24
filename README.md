@@ -6,6 +6,19 @@ Sou **ScarterDM**, programador e criador de plugins, especializado no desenvolvi
 
 Transformo as necessidades da comunidade em sistemas próprios: administração, interação social, magia, identidade visual e experiências de jogo. Meu foco é construir projetos organizados, modulares e preparados para evoluir junto com o servidor.
 
+## 🛠️ Últimos trabalhos
+
+**24 de novembro de 2026 · Família TD**
+
+| Plugin | Desenvolvimento recente | Canal |
+|---|---|---|
+| [TD-Central](plugins/TD-Central) | Evolução da integração com o portal, gerenciamento de acesso e ajustes de compatibilidade. | `DEV` |
+| [TD-Cargos](plugins/TD-Cargos) | Equipe jornalística, convites e correções no gerenciamento administrativo de cargos. | `DEV` |
+
+[**📅 Diário de desenvolvimento por horário**](DIARIO-DEV.md) · [**📜 Notas oficiais dos plugins**](NOTAS-OFICIAIS.md)
+
+As builds corretivas passaram pela compilação e testes automatizados; a validação em jogo permanece pendente.
+
 ## Família TD
 
 Cada projeto tem uma apresentação própria. Os plugins são **exclusivos da Trindade Craft**; seus códigos e executáveis permanecem privados.
