@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="290" viewBox="0 0 1200 290" role="img" aria-label="TD-Guerras — Trindade Craft">
+<defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#100b20"/><stop offset="1" stop-color="#271044"/></linearGradient><linearGradient id="line"><stop stop-color="#a855f7"/><stop offset="1" stop-color="#f5c86a"/></linearGradient></defs>
+<rect width="1200" height="290" rx="24" fill="url(#bg)"/><path d="M880 0L1200 260M960 0L1200 180M800 0L1090 290" stroke="#ffffff" stroke-opacity=".035" stroke-width="32"/>
+<rect x="44" y="40" width="1112" height="210" rx="16" fill="none" stroke="#ffffff" stroke-opacity=".1"/>
+<path d="M84 101L106 117L125 88L144 117L166 101L158 144H92Z" fill="#f5c86a"/><rect x="94" y="150" width="62" height="6" rx="3" fill="#f5c86a"/>
+<text x="204" y="90" fill="#d8bbf6" font-family="Arial,sans-serif" font-size="14" letter-spacing="5">SCARTERDM / TRINDADE CRAFT</text>
+<text x="200" y="158" fill="#ffffff" font-family="Arial,sans-serif" font-size="60" font-weight="700">TD-Guerras</text>
+<text x="203" y="199" fill="#cbbdd9" font-family="Arial,sans-serif" font-size="22">Clãs com identidade e estratégia</text><rect x="84" y="226" width="1032" height="3" fill="url(#line)"/></svg>
