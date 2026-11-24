@@ -22,6 +22,14 @@ TD-Mod faz parte de uma família de plugins criada para atender às necessidades
 - Inspeção, coleta de provas e registros associados às ações.
 - Efeitos de custódia, proteção e avisos aos membros autorizados.
 
+## Navegação no servidor
+
+Os comandos disponíveis dependem dos módulos habilitados e das permissões do jogador.
+
+- `/tdmod` — Moderação, prisões e tribunal Atalhos: `/moderacao`, `/tribunal`.
+- `/denunciar` — Enviar denúncia
+- `/bug` — Relatar problema do servidor
+
 ## Evolução e compatibilidade
 
 O projeto está em evolução. A disponibilidade de cada recurso depende da versão aprovada para o servidor. Recursos visuais, menus e integrações podem variar conforme a versão do Minecraft, o cliente Java/Bedrock e os plugins associados. Esta apresentação não substitui a validação da versão instalada.

@@ -22,6 +22,12 @@ TD-TAB faz parte de uma família de plugins criada para atender às necessidades
 - Integração com cargos, povos, relacionamentos e avisos administrativos.
 - Recursos visuais vinculados ao pacote gerenciado pelo TD-Central.
 
+## Navegação no servidor
+
+Os comandos disponíveis dependem dos módulos habilitados e das permissões do jogador.
+
+- `/tdtab` — Administração do TD-TAB Atalhos: `/tdtabs`.
+
 ## Evolução e compatibilidade
 
 O projeto está em evolução. A disponibilidade de cada recurso depende da versão aprovada para o servidor. Recursos visuais, menus e integrações podem variar conforme a versão do Minecraft, o cliente Java/Bedrock e os plugins associados. Esta apresentação não substitui a validação da versão instalada.

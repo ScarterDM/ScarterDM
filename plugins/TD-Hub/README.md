@@ -22,6 +22,44 @@ TD-Hub faz parte de uma família de plugins criada para atender às necessidades
 - Correio, recursos de horário e ferramentas administrativas.
 - Integração com menus e serviços dos demais plugins TD.
 
+## Navegação no servidor
+
+Os comandos disponíveis dependem dos módulos habilitados e das permissões do jogador.
+
+- `/tps` — Exibe TPS e desempenho do servidor.
+- `/noite` — Vota para anoitecer durante o dia.
+- `/dia` — Vota para amanhecer ou inicia uma votação.
+- `/plugins` — Lista plugins disponíveis conforme suas permissões.
+- `/pl` — Lista plugins disponíveis conforme suas permissões.
+- `/list` — Lista jogadores online; administração vê logins distintos do dia.
+- `/time` — Abre o controle de hora e ciclo dia/noite.
+- `/tdhub` — Painel administrativo do TD-HUB.
+- `/hub` — Teleporta ao hub. Atalhos: `/lobby`, `/inicio`.
+- `/spawn` — Teleporta ao spawn deste mundo.
+- `/sethub` — Define o hub principal na posição atual.
+- `/setspawn` — Define o spawn deste mundo na posição atual.
+- `/tp` — Abre o menu ou teleporta diretamente a um jogador. Atalhos: `/teleportar`.
+- `/tphere` — Traz um jogador até você. Atalhos: `/trazer`.
+- `/tpa` — Solicita para ir até outro jogador. Atalhos: `/pedirtpa`.
+- `/tpahere` — Solicita que outro jogador venha até você. Atalhos: `/pedirtrazer`.
+- `/home` — Abre suas homes ou teleporta para uma delas. Atalhos: `/casas`, `/homes`.
+- `/sethome` — Cria ou atualiza uma home. Atalhos: `/setcasa`.
+- `/warp` — Abre as warps ou teleporta para uma. Atalhos: `/warps`, `/waps`.
+- `/setwarp` — Cria ou atualiza uma warp. Atalhos: `/definirwarp`.
+- `/back` — Retorna à localização anterior. Atalhos: `/voltar`.
+- `/correio` — Abre o correio de cartas dos jogadores. Atalhos: `/mail`.
+- `/tditem` — Abre as ferramentas para o item na mão.
+- `/menu` — Abre o menu pessoal do jogador. Atalhos: `/menujogador`.
+- `/rtp` — Teleporta para um local aleatório e seguro. Atalhos: `/randomtp`, `/teleportaleatorio`.
+- `/alerta` — Envia notícia ao servidor.
+- `/promo` — Abre o menu de promoções.
+- `/kit` — Lista e resgata kits. Atalhos: `/kits`.
+- `/gm` — Altera modo de jogo (0 sobrevivência, 1 criativo, 2 aventura, 3 espectador).
+- `/nick` — Define ou remove o nick de exibição.
+- `/fly` — Alterna o voo. Atalhos: `/voar`.
+- `/v` — Alterna o modo vanish.
+- `/placa` — Gerencia comandos associados a blocos.
+
 ## Evolução e compatibilidade
 
 O projeto está em evolução. A disponibilidade de cada recurso depende da versão aprovada para o servidor. Recursos visuais, menus e integrações podem variar conforme a versão do Minecraft, o cliente Java/Bedrock e os plugins associados. Esta apresentação não substitui a validação da versão instalada.

@@ -22,6 +22,13 @@ TD-VIPS faz parte de uma família de plugins criada para atender às necessidade
 - Gestão de duração, remoção e congelamento do benefício.
 - Persistência de registros, controle de expiração e placeholders.
 
+## Navegação no servidor
+
+Os comandos disponíveis dependem dos módulos habilitados e das permissões do jogador.
+
+- `/vip` — Abre seu painel VIP Atalhos: `/vips`.
+- `/tdvip` — Administração do TD-VIPS Atalhos: `/tdvips`.
+
 ## Evolução e compatibilidade
 
 O projeto está em evolução. A disponibilidade de cada recurso depende da versão aprovada para o servidor. Recursos visuais, menus e integrações podem variar conforme a versão do Minecraft, o cliente Java/Bedrock e os plugins associados. Esta apresentação não substitui a validação da versão instalada.

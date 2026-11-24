@@ -22,6 +22,12 @@ TD-Ranks faz parte de uma família de plugins criada para atender às necessidad
 - Compartilhamento de consultas conforme as regras do plugin.
 - Ferramentas administrativas de estado, backup e configuração.
 
+## Navegação no servidor
+
+Os comandos disponíveis dependem dos módulos habilitados e das permissões do jogador.
+
+- `/ranks` — Estatísticas e rankings Atalhos: `/rank`, `/tdranks`.
+
 ## Evolução e compatibilidade
 
 O projeto está em evolução. A disponibilidade de cada recurso depende da versão aprovada para o servidor. Recursos visuais, menus e integrações podem variar conforme a versão do Minecraft, o cliente Java/Bedrock e os plugins associados. Esta apresentação não substitui a validação da versão instalada.

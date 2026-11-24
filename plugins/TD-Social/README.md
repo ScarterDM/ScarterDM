@@ -22,6 +22,17 @@ TD-Social faz parte de uma família de plugins criada para atender às necessida
 - Pedidos, cerimônias, registros e certidões.
 - Informações sociais do jogador e estrutura para evolução familiar.
 
+## Navegação no servidor
+
+Os comandos disponíveis dependem dos módulos habilitados e das permissões do jogador.
+
+- `/social` — Vida religiosa, famílias e clãs Atalhos: `/tdsocial`, `/igreja`, `/devocao`, `/padre`, `/familia`, `/família`, `/cla`, `/bispo`.
+- `/aceitar` — Aceita um pedido de relacionamento vigente
+- `/bolo` — Felicita o aniversariante anunciado
+- `/uhu` — Felicita o último casal anunciado
+- `/bencao` — Pede a bênção a um padre próximo Atalhos: `/benção`, `/bênção`.
+- `/orar` — Inicia uma oração em área válida
+
 ## Evolução e compatibilidade
 
 O projeto está em evolução. A disponibilidade de cada recurso depende da versão aprovada para o servidor. Recursos visuais, menus e integrações podem variar conforme a versão do Minecraft, o cliente Java/Bedrock e os plugins associados. Esta apresentação não substitui a validação da versão instalada.

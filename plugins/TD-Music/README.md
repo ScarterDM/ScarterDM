@@ -22,6 +22,12 @@ TD-Music faz parte de uma família de plugins criada para atender às necessidad
 - Continuidade dos dados e da organização do projeto existente.
 - Separação entre o gerenciamento musical e os serviços centrais do pacote.
 
+## Navegação no servidor
+
+Os comandos disponíveis dependem dos módulos habilitados e das permissões do jogador.
+
+- `/tdmusic` — Gerencia pacotes, TD BOX e reprodução do TD Music. Atalhos: `/td`.
+
 ## Evolução e compatibilidade
 
 O projeto está em evolução. A disponibilidade de cada recurso depende da versão aprovada para o servidor. Recursos visuais, menus e integrações podem variar conforme a versão do Minecraft, o cliente Java/Bedrock e os plugins associados. Esta apresentação não substitui a validação da versão instalada.

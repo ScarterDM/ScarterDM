@@ -22,6 +22,12 @@ TD-Magia faz parte de uma família de plugins criada para atender às necessidad
 - Habilidades ativas e passivas com duração, recarga e efeitos.
 - Configurações por povo e magia, catálogo extensível e integração com NPCs.
 
+## Navegação no servidor
+
+Os comandos disponíveis dependem dos módulos habilitados e das permissões do jogador.
+
+- `/magia` — Povos, habilidades e administração Atalhos: `/tdmagia`, `/povos`, `/racas`, `/raca`, `/tdpovos`.
+
 ## Evolução e compatibilidade
 
 O projeto está em evolução. A disponibilidade de cada recurso depende da versão aprovada para o servidor. Recursos visuais, menus e integrações podem variar conforme a versão do Minecraft, o cliente Java/Bedrock e os plugins associados. Esta apresentação não substitui a validação da versão instalada.
