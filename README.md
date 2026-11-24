@@ -34,3 +34,13 @@ Interessado em um plugin para o seu servidor? Procure **ScarterDM**, pelos canai
 ## Como os projetos evoluem
 
 **DEV** identifica trabalho em desenvolvimento e testes. **OFICIAL** identifica uma versão aprovada por mim para uso na Trindade Craft. A apresentação pública não inclui downloads de plugins.
+
+<!-- trindade-site:start -->
+## Universo Trindade Craft
+
+A página de apresentação do servidor reúne povos e magia, famílias, fé, governo dos jogadores, clãs, orientações de convivência e os endereços Java e Bedrock.
+
+![Arte conceitual do universo Trindade Craft](assets/reino-trindade.webp)
+
+A página está preparada para GitHub Pages. [Publicação e manutenção das notas oficiais](TRINDADE-SITE.md).
+<!-- trindade-site:end -->
