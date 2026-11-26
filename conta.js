@@ -37,12 +37,38 @@
  function renderPortal(){
    const nav=$('portal-nav'),view=$('portal-view');
    const node=(tag,value)=>{const e=document.createElement(tag);e.textContent=value;return e;};
+   let generation=0;
+   async function loadProfile(target,version){
+     const current=token;
+     try {
+       const r=await request('profile',current);
+       if(token!==current||version!==generation)return;
+       if(!r.ok){target.textContent='Perfil ainda indisponível no servidor.';return;}
+       const d=JSON.parse(r.value);
+       if(d.uuid!==playerId)throw Error('Identidade inválida');
+       target.replaceChildren();
+       const add=(label,value)=>{if(value!==undefined&&value!==null)target.append(node('p',label+': '+String(value)));};
+       add('Nickname',d.nick);add('Estado',d.online?'Online':'Offline');
+       add('Mundo',d.world);if([d.x,d.y,d.z].every(Number.isFinite))add('Coordenadas',[d.x,d.y,d.z].join(', '));
+       if(Number.isFinite(d.health)&&Number.isFinite(d.maxHealth))add('Vida',d.health+' / '+d.maxHealth);
+       add('Fome',d.food);add('Nível',d.level);if(Number.isFinite(d.xp))add('Progresso XP',Math.round(d.xp*100)+'%');
+       for(const [label,key] of [['Raça','race'],['Clã','clan'],['Cargos','roles'],['Saldo','wallet'],['Dívida','debt'],['Sexo','sex'],['Idade','age']])add(label,d[key]);
+       if(Number.isFinite(d.updatedAt))add('Atualizado',new Date(d.updatedAt*1000).toLocaleString('pt-BR'));
+       for(const [label,key,count] of [['Inventário','inventory',36],['Armaduras','equipment',4]]){
+         if(!Array.isArray(d[key]))continue;
+         target.append(node('h4',label));const grid=node('div','');grid.className='inventory-grid';
+         for(let i=0;i<count;i++){const item=d[key].find(x=>x&&x.slot===i);const slot=node('div',item?String(item.type).replace(/^minecraft:/,'').replaceAll('_',' ')+' ×'+item.amount:'Vazio');slot.className='inventory-slot';grid.append(slot);}
+         target.append(grid);
+       }
+     }catch{if(token===current&&version===generation)target.textContent='Não foi possível consultar o perfil.';}
+   }
    function show(area){
+     const version=++generation;
      for(const b of nav.children)b.setAttribute('aria-pressed',String(b.textContent===area));
      view.replaceChildren(node('h3',area));
      const p=t=>view.append(node('p',t));
      const link=(label,url)=>{const a=node('a',label);a.href=url;a.className='text-link';view.append(a);};
-     if(area===areas[0]){p('Nickname: '+playerNick);p('Identificador da conta: '+playerId);p('Raça, reino, cargos e atributos ainda aguardam integração com o servidor.');}
+     if(area===areas[0]){p('Nickname: '+playerNick);p('Identificador da conta: '+playerId);const target=node('div','Consultando perfil…');view.append(target);void loadProfile(target,version);}
      if(area===areas[1]){p('A leitura pública está disponível. A redação aguarda uma API de permissões e publicação autenticada.');link('Ler a Gazeta','noticias.html');}
      if(area===areas[2])p('A composição real das instituições ainda não está disponível pela API.');
      if(area===areas[3])p('A consulta de leis e as votações aguardam integração com o sistema legislativo.');
