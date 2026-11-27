@@ -33,6 +33,11 @@
  addEventListener('pagehide',()=>{const current=token;token=null;clearInterval(timer);if(current)fetch(api+'logout',{method:'POST',headers:{'Content-Type':'application/octet-stream'},body:current,credentials:'omit',keepalive:true,redirect:'error'}).catch(()=>{});});
  addEventListener('pageshow',e=>{if(e.persisted){clearSession();lock(false);}});
 
+ const helpButtons=[...document.querySelectorAll('.help-trigger')];
+ function closeHelp(except){for(const button of helpButtons){if(button===except)continue;button.setAttribute('aria-expanded','false');button.nextElementSibling.hidden=true;}}
+ function openHelp(button){closeHelp(button);button.setAttribute('aria-expanded','true');button.nextElementSibling.hidden=false;}
+ for(const button of helpButtons){const anchor=button.parentElement;anchor.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse')openHelp(button);});anchor.addEventListener('pointerleave',e=>{if(e.pointerType==='mouse')closeHelp();});button.addEventListener('click',()=>{if(button.getAttribute('aria-expanded')==='true')closeHelp();else openHelp(button);});button.addEventListener('blur',()=>closeHelp());}
+ document.addEventListener('pointerdown',e=>{if(!e.target.closest('.help-anchor'))closeHelp();});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeHelp();});
  const areas=['Meu personagem','Gazeta','Instituições','Legislação','Segurança','Cidadãos'];
  function renderPortal(){
    const nav=$('portal-nav'),view=$('portal-view');
@@ -62,7 +67,7 @@
        for(const [label,key,count] of [['Inventário','inventory',36],['Armaduras','equipment',4]]){
          if(!Array.isArray(d[key]))continue;
          target.append(node('h4',label));const grid=node('div','');grid.className='inventory-grid';
-         for(let i=0;i<count;i++){const item=d[key].find(x=>x&&x.slot===i);const slot=node('div',item?String(item.type).replace(/^minecraft:/,'').replaceAll('_',' ')+' ×'+item.amount:'Vazio');slot.className='inventory-slot'+(item?' filled':'');if(!item)slot.textContent='';else slot.title=String(item.type)+' ×'+item.amount;grid.append(slot);}
+         for(let i=0;i<count;i++){const item=d[key].find(x=>x&&x.slot===i);const slot=node('div',item?String(item.type).replace(/^minecraft:/,'').replaceAll('_',' ')+' ×'+item.amount:'Vazio');slot.className='inventory-slot'+(item?' filled':'');if(!item)slot.textContent='';else {const id=String(item.type);slot.title=id+' ×'+item.amount;const img=document.createElement('img');img.alt=id.replace(/^minecraft:/,'').replaceAll('_',' ');img.referrerPolicy='no-referrer';const count=node('span',String(item.amount));count.className='item-count';if(/^minecraft:[a-z0-9_]+$/.test(id)){img.src='https://project-crafting.github.io/minecraft-auto-updated-textures-api/items/'+id.slice(10)+'.png';img.onerror=()=>{img.remove();slot.prepend(node('span',img.alt));};slot.replaceChildren(img,count);} }grid.append(slot);}
          target.append(grid);
        }
      }catch{if(token===current&&version===generation)target.textContent='Não foi possível consultar o perfil.';}
