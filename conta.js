@@ -12,7 +12,7 @@
  }
  function mode(activate){$('login').hidden=activate;$('activate').hidden=!activate;$('show-login').setAttribute('aria-pressed',String(!activate));$('show-activate').setAttribute('aria-pressed',String(activate));status('');}
  function lock(value){busy=value;$('portal-loading').hidden=!value;document.querySelectorAll('.account-card button').forEach(b=>b.disabled=value);}
- function clearSession(){document.body.classList.remove('portal-authenticated');playerId=null;playerNick='';$('portal-view').replaceChildren();$('portal-nav').replaceChildren();token=null;clearInterval(timer);timer=null;$('signed-in').hidden=true;$('identity').textContent='';$('account-forms').hidden=false;mode(false);}
+ function clearSession(){delete document.body.dataset.realm;document.body.classList.remove('portal-authenticated');playerId=null;playerNick='';$('portal-view').replaceChildren();$('portal-nav').replaceChildren();token=null;clearInterval(timer);timer=null;$('signed-in').hidden=true;$('identity').textContent='';$('account-forms').hidden=false;mode(false);}
  async function verify(){const current=token;if(!current)return false;try{const r=await request('session',current);if(token!==current)return false;if(r.ok&&uuid.test(r.value)){playerId=r.value;return true;}}catch{}if(token===current){clearSession();status('Sessão encerrada ou não foi possível validá-la. Entre novamente.');}return false;}
  $('show-login').onclick=()=>mode(false);$('show-activate').onclick=()=>mode(true);
  $('activate').onsubmit=async e=>{
@@ -42,7 +42,9 @@
  function renderPortal(){
    const nav=$('portal-nav'),view=$('portal-view');
    const node=(tag,value)=>{const e=document.createElement(tag);e.textContent=value;return e;};
-   let generation=0;
+   let generation=0, preview=null;
+   const themes={neutral:'Trindade',elf:'Selva',fairy:'Dragônia',colossus:'Trevas',imperial:'Imperial'};
+   const normalize=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
    async function loadProfile(target,version){
      const current=token;
      try {
@@ -52,8 +54,14 @@
        const d=JSON.parse(r.value);
        if(d.uuid!==playerId)throw Error('Identidade inválida');
        target.replaceChildren();
+       const primordial=Array.isArray(d.roles)&&d.roles.some(role=>normalize(role)==='primordial');
+       const race=normalize(d.race);
+       const actual=primordial?'imperial':/elf/.test(race)?'elf':/fad|fairy/.test(race)?'fairy':/coloss/.test(race)?'colossus':'neutral';
+       if(!primordial)preview=null;
+       document.body.dataset.realm=preview||actual;
+       if(primordial){const controls=node('div','');controls.className='theme-preview';const label=node('label','Experimentar aparência');const select=document.createElement('select');select.setAttribute('aria-label','Experimentar aparência');for(const [key,name] of Object.entries(themes)){const option=node('option',name);option.value=key;select.append(option);}select.value=preview||actual;select.onchange=()=>{preview=select.value;document.body.dataset.realm=preview;};const reset=node('button','Restaurar');reset.type='button';reset.onclick=()=>{preview=null;select.value=actual;document.body.dataset.realm=actual;};controls.append(label,select,reset,node('small','Somente visual, nesta sessão.'));target.append(controls);}
        const add=(label,value)=>{if(value!==undefined&&value!==null)(target.querySelector('.character-details')||target).append(node('p',label+': '+String(value)));};
-       const hero=node('div','');hero.className='character-hero';const crest=node('div','♜');crest.className='character-crest';const bio=node('div','');bio.append(node('span','FICHA DO PERSONAGEM'),node('h2',d.nick),node('p',(d.race||'Raça não informada')+' · '+(d.online?'Online':'Offline')));hero.append(crest,bio);target.append(hero);
+       const hero=node('div','');hero.className='character-hero';const crest=node('div',primordial?'👑':actual==='elf'?'🌿':actual==='fairy'?'✧':actual==='colossus'?'🔥':'♜');crest.className='character-crest';const bio=node('div','');bio.append(node('span','FICHA DO PERSONAGEM'),node('h2',d.nick),node('p',(d.race||'Raça não informada')+' · '+(d.online?'Online':'Offline')));hero.append(crest,bio);target.append(hero);
        const stats=node('div','');stats.className='character-stats';target.append(stats);
        const stat=(icon,label,value)=>{if(value===undefined||value===null)return;const card=node('div','');card.className='character-stat';card.append(node('span',icon+' '+label),node('strong',String(value)));stats.append(card);};
        stat('♥','Vida',Number.isFinite(d.health)&&Number.isFinite(d.maxHealth)?d.health+' / '+d.maxHealth:null);stat('✦','Nível',d.level);stat('🍗','Fome',d.food);stat('◈','Saldo',d.wallet);
@@ -62,12 +70,12 @@
        add('Mundo',d.world);if([d.x,d.y,d.z].every(Number.isFinite))add('Coordenadas',[d.x,d.y,d.z].join(', '));
        
        for(const [label,key] of [['Raça','race'],['Clã','clan'],['Cargos','roles'],['Dívida','debt'],['Sexo','sex'],['Idade','age']])add(label,d[key]);
-       if(Array.isArray(d.achievements)){const trophies=node('details','');trophies.className='achievement-panel';trophies.append(node('summary','🏆 Conquistas · '+d.achievements.length));for(const a of d.achievements)trophies.append(node('p',String(a).replaceAll('_',' ')));target.append(trophies);}
+       if(Array.isArray(d.achievements)){const trophies=node('details','');trophies.className='achievement-panel';trophies.append(node('summary','🏆 Conquistas · '+d.achievements.length));const medals=node('div','');medals.className='medal-grid';const titles={'story/root':'A aventura começa','story/mine_stone':'Idade da Pedra','story/upgrade_tools':'Hora de melhorar','story/smelt_iron':'Adquirindo ferramentas','story/diamonds':'Diamantes!','story/enter_the_nether':'Precisamos ir mais fundo','nether/root':'O Nether','end/root':'O Fim','adventure/root':'Aventura','husbandry/root':'Agricultura','story/obtain_armor':'Vista-se para a batalha','story/shiny_gear':'Cubra-me de diamantes','story/iron_tools':'Não é uma picareta qualquer'};for(const a of d.achievements){const key=String(a).replace(/^minecraft:/,'');const medal=node('div','');medal.className='medal';const symbol=key.includes('diamond')?'💎':key.startsWith('nether/')?'🔥':key.startsWith('end/')?'🐉':key.startsWith('husbandry/')?'🌾':key.startsWith('adventure/')?'⚔️':'🏅';medal.append(node('span',symbol),node('strong',titles[key]||key.split('/').pop().replaceAll('_',' ')));medal.title=key;medals.append(medal);}trophies.append(medals);target.append(trophies);}
        if(Number.isFinite(d.updatedAt))add('Atualizado',new Date(d.updatedAt*1000).toLocaleString('pt-BR'));
        for(const [label,key,count] of [['Inventário','inventory',36],['Armaduras','equipment',4]]){
          if(!Array.isArray(d[key]))continue;
-         target.append(node('h4',label));const grid=node('div','');grid.className='inventory-grid';
-         for(let i=0;i<count;i++){const item=d[key].find(x=>x&&x.slot===i);const slot=node('div',item?String(item.type).replace(/^minecraft:/,'').replaceAll('_',' ')+' ×'+item.amount:'Vazio');slot.className='inventory-slot'+(item?' filled':'');if(!item)slot.textContent='';else {const id=String(item.type);slot.title=id+' ×'+item.amount;const img=document.createElement('img');img.alt=id.replace(/^minecraft:/,'').replaceAll('_',' ');img.referrerPolicy='no-referrer';const count=node('span',String(item.amount));count.className='item-count';if(/^minecraft:[a-z0-9_]+$/.test(id)){img.src='https://project-crafting.github.io/minecraft-auto-updated-textures-api/items/'+id.slice(10)+'.png';img.onerror=()=>{img.remove();slot.prepend(node('span',img.alt));};slot.replaceChildren(img,count);} }grid.append(slot);}
+         target.append(node('h4',label));const grid=node('div','');grid.className='inventory-grid '+(key==='equipment'?'equipment-grid':'');
+         for(let i=0;i<count;i++){const index=key==='inventory'?(i+9)%36:3-i;const item=d[key].find(x=>x&&x.slot===index);const slot=node('div',item?String(item.type).replace(/^minecraft:/,'').replaceAll('_',' ')+' ×'+item.amount:'Vazio');slot.className='inventory-slot'+(item?' filled':'')+(key==='inventory'&&i>=27?' hotbar-slot':'');if(!item)slot.textContent='';else {const id=String(item.type);slot.title=id+' ×'+item.amount;const img=document.createElement('img');img.alt=id.replace(/^minecraft:/,'').replaceAll('_',' ');img.referrerPolicy='no-referrer';const count=node('span',String(item.amount));count.className='item-count';if(/^minecraft:[a-z0-9_]+$/.test(id)){img.src='https://project-crafting.github.io/minecraft-auto-updated-textures-api/items/'+id.slice(10)+'.png';img.onerror=()=>{img.remove();slot.prepend(node('span',img.alt));};slot.replaceChildren(img,count);} }grid.append(slot);}
          target.append(grid);
        }
      }catch{if(token===current&&version===generation)target.textContent='Não foi possível consultar o perfil.';}
