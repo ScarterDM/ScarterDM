@@ -33,7 +33,7 @@
  addEventListener('pagehide',()=>{const current=token;token=null;clearInterval(timer);if(current)fetch(api+'logout',{method:'POST',headers:{'Content-Type':'application/octet-stream'},body:current,credentials:'omit',keepalive:true,redirect:'error'}).catch(()=>{});});
  addEventListener('pageshow',e=>{if(e.persisted){clearSession();lock(false);}});
 
- const areas=['Meu personagem','Gazeta','Instituições','Legislação','Segurança'];
+ const areas=['Meu personagem','Gazeta','Instituições','Legislação','Segurança','Cidadãos'];
  function renderPortal(){
    const nav=$('portal-nav'),view=$('portal-view');
    const node=(tag,value)=>{const e=document.createElement(tag);e.textContent=value;return e;};
@@ -53,6 +53,7 @@
        if(Number.isFinite(d.health)&&Number.isFinite(d.maxHealth))add('Vida',d.health+' / '+d.maxHealth);
        add('Fome',d.food);add('Nível',d.level);if(Number.isFinite(d.xp))add('Progresso XP',Math.round(d.xp*100)+'%');
        for(const [label,key] of [['Raça','race'],['Clã','clan'],['Cargos','roles'],['Saldo','wallet'],['Dívida','debt'],['Sexo','sex'],['Idade','age']])add(label,d[key]);
+       if(Array.isArray(d.achievements)){target.append(node('h4','Conquistas'));for(const a of d.achievements)target.append(node('p',String(a)));}
        if(Number.isFinite(d.updatedAt))add('Atualizado',new Date(d.updatedAt*1000).toLocaleString('pt-BR'));
        for(const [label,key,count] of [['Inventário','inventory',36],['Armaduras','equipment',4]]){
          if(!Array.isArray(d[key]))continue;
@@ -61,6 +62,41 @@
          target.append(grid);
        }
      }catch{if(token===current&&version===generation)target.textContent='Não foi possível consultar o perfil.';}
+   }
+   const visibility={nick:'Nickname',race:'Raça',clan:'Clã',roles:'Cargos',sex:'Sexo',age:'Idade',wallet:'Saldo',debt:'Dívida',inventory:'Inventário',equipment:'Equipamentos',location:'Localização',achievements:'Conquistas',health:'Vida',food:'Alimentação',level:'Nível e XP',online:'Status online'};
+   async function privacy(version){
+     const current=token, panel=node('div','Carregando privacidade…');view.append(panel);
+     const active=()=>token===current&&version===generation;
+     try{
+       const r=await request('profile-privacy',current);if(!active())return;
+       if(!r.ok)throw Error();
+       panel.replaceChildren(node('h4','Visibilidade do personagem'));
+       const selected=new Set(r.value.split(',')), checks=[];
+       for(const [key,label] of Object.entries(visibility)){
+         const row=node('label',''), check=document.createElement('input');check.type='checkbox';check.checked=selected.has(key);check.value=key;checks.push(check);row.append(check,document.createTextNode(' '+label));panel.append(row);
+       }
+       const save=node('button','Salvar privacidade'), feedback=node('p','');save.type='button';panel.append(save,feedback);
+       save.onclick=async()=>{save.disabled=true;try{const result=await request('profile-privacy',current+'\n'+checks.filter(c=>c.checked).map(c=>c.value).join(','));if(active())feedback.textContent=result.ok?'Preferências salvas.':'Não foi possível salvar.';}catch{if(active())feedback.textContent='Conexão indisponível.';}finally{save.disabled=false;}};
+     }catch{if(active())panel.textContent='Privacidade indisponível nesta versão do servidor.';}
+   }
+   function citizens(version){
+     const current=token, input=document.createElement('input'), search=node('button','Pesquisar'), results=node('div',''), admin=node('button','Pesquisa administrativa');
+     input.placeholder='Nickname';input.maxLength=64;input.setAttribute('aria-label','Nickname do cidadão');search.type=admin.type='button';view.append(input,search,admin,results);
+     let sequence=0;
+     async function run(mode){
+       const seq=++sequence, active=()=>token===current&&version===generation&&seq===sequence;
+       results.textContent='Consultando…';
+       try{
+         const r=await request('citizens',current+'\n'+input.value.replace(/[\r\n]/g,'')+'\n'+mode);if(!active())return;
+         if(!r.ok){results.textContent=r.code===403?'Acesso não autorizado.':'Diretório indisponível.';return;}
+         const entries=JSON.parse(r.value);results.replaceChildren();
+         if(!entries.length)results.textContent='Nenhum cidadão encontrado.';
+         for(const entry of entries){if(!uuid.test(entry.uuid))continue;const button=node('button',entry.nick);button.type='button';results.append(button);
+           button.onclick=async()=>{const detailSeq=++sequence;try{const response=await request(mode==='admin'?'profile-inspect':'profile-shared',current+'\n'+entry.uuid);if(token!==current||version!==generation||sequence!==detailSeq)return;if(!response.ok){results.textContent='Perfil indisponível ou acesso não autorizado.';return;}const d=JSON.parse(response.value);results.replaceChildren(node('h4',d.nick||'Perfil'));for(const [key,value] of Object.entries(d)){if(key==='uuid'||key==='nick')continue;results.append(node('p',(visibility[key]||key)+': '+(typeof value==='object'?JSON.stringify(value):String(value))));}}catch{if(token===current&&version===generation&&sequence===detailSeq)results.textContent='Não foi possível consultar.';}};
+         }
+       }catch{if(active())results.textContent='Diretório indisponível.';}
+     }
+     search.onclick=()=>run('shared');admin.onclick=()=>run('admin');
    }
    function show(area){
      const version=++generation;
@@ -72,7 +108,8 @@
      if(area===areas[1]){p('A leitura pública está disponível. A redação aguarda uma API de permissões e publicação autenticada.');link('Ler a Gazeta','noticias.html');}
      if(area===areas[2])p('A composição real das instituições ainda não está disponível pela API.');
      if(area===areas[3])p('A consulta de leis e as votações aguardam integração com o sistema legislativo.');
-     if(area===areas[4]){p('Sessão verificada pelo TD-Central.');p('Para alterar a senha ou renovar a ativação, utilize /site no Minecraft.');p('As configurações de privacidade ainda aguardam integração.');}
+     if(area===areas[4]){p('Sessão verificada pelo TD-Central.');p('Para alterar a senha ou renovar a ativação, utilize /site no Minecraft.');void privacy(version);}
+     if(area===areas[5])citizens(version);
    }
    nav.replaceChildren(...areas.map(area=>{const b=node('button',area);b.type='button';b.onclick=()=>show(area);return b;}));show(areas[0]);
  }
