@@ -12,7 +12,7 @@
  }
  function mode(activate){$('login').hidden=activate;$('activate').hidden=!activate;$('show-login').setAttribute('aria-pressed',String(!activate));$('show-activate').setAttribute('aria-pressed',String(activate));status('');}
  function lock(value){busy=value;$('portal-loading').hidden=!value;document.querySelectorAll('.account-card button').forEach(b=>b.disabled=value);}
- function clearSession(){delete document.body.dataset.realm;document.body.classList.remove('portal-authenticated');playerId=null;playerNick='';$('portal-view').replaceChildren();$('portal-nav').replaceChildren();token=null;clearInterval(timer);timer=null;$('signed-in').hidden=true;$('identity').textContent='';$('account-forms').hidden=false;mode(false);}
+ function clearSession(){try{localStorage.removeItem('td.portal.session');}catch{}delete document.body.dataset.realm;document.body.classList.remove('portal-authenticated');playerId=null;playerNick='';$('portal-view').replaceChildren();$('portal-nav').replaceChildren();token=null;clearInterval(timer);timer=null;$('signed-in').hidden=true;$('identity').textContent='';$('account-forms').hidden=false;mode(false);}
  async function verify(){const current=token;if(!current)return false;try{const r=await request('session',current);if(token!==current)return false;if(r.ok&&uuid.test(r.value)){playerId=r.value;return true;}}catch{}if(token===current){clearSession();status('Sessão encerrada ou não foi possível validá-la. Entre novamente.');}return false;}
  $('show-login').onclick=()=>mode(false);$('show-activate').onclick=()=>mode(true);
  $('activate').onsubmit=async e=>{
@@ -28,11 +28,11 @@
    }catch{status('Conexão indisponível. Tente novamente.');}
    finally{$('activation-password').value='';lock(false);}
  };
- $('login').onsubmit=async e=>{e.preventDefault();if(busy)return;const nick=$('nick').value.trim(),password=$('password').value;if(!nick||/[\r\n]/.test(nick)||!password)return;lock(true);status('');try{const r=await request('login',nick+'\n'+password);if(r.ok&&validToken.test(r.value)){token=r.value;if(await verify()){$('account-forms').hidden=true;$('signed-in').hidden=false;document.body.classList.add('portal-authenticated');$('identity').textContent='Bem-vindo, '+nick+'.';playerNick=nick;renderPortal();status('');timer=setInterval(()=>{void verify();},30000);}}else status(r.code===429?'Muitas tentativas. Aguarde um minuto.':'Confira os dados. Se a ativação venceu, gere um PIN pelo /site dentro do servidor.');}catch{status('Conexão indisponível. Tente novamente.');}finally{$('password').value='';lock(false);}};
+ $('login').onsubmit=async e=>{e.preventDefault();if(busy)return;const nick=$('nick').value.trim(),password=$('password').value;if(!nick||/[\r\n]/.test(nick)||!password)return;lock(true);status('');try{const r=await request('login',nick+'\n'+password);if(r.ok&&validToken.test(r.value)){token=r.value;if(await verify()){$('account-forms').hidden=true;$('signed-in').hidden=false;document.body.classList.add('portal-authenticated');$('identity').textContent='Bem-vindo, '+nick+'.';playerNick=nick;try{localStorage.setItem('td.portal.session',JSON.stringify({token, nick, expires:Date.now()+86400000}));}catch{}renderPortal();status('');timer=setInterval(()=>{void verify();},30000);}}else status(r.code===429?'Muitas tentativas. Aguarde um minuto.':'Confira os dados. Se a ativação venceu, gere um PIN pelo /site dentro do servidor.');}catch{status('Conexão indisponível. Tente novamente.');}finally{$('password').value='';lock(false);}};
  $('logout').onclick=async()=>{if(busy)return;lock(true);const current=token;clearSession();try{const r=await request('logout',current);status(r.ok?'Sessão encerrada.':'Sessão local encerrada; servidor não confirmou a revogação.');}catch{status('Sessão local encerrada; servidor não confirmou a revogação.');}finally{lock(false);}};
- addEventListener('pagehide',()=>{const current=token;token=null;clearInterval(timer);if(current)fetch(api+'logout',{method:'POST',headers:{'Content-Type':'application/octet-stream'},body:current,credentials:'omit',keepalive:true,redirect:'error'}).catch(()=>{});});
- addEventListener('pageshow',e=>{if(e.persisted){clearSession();lock(false);}});
-
+ addEventListener('pagehide',()=>{clearInterval(timer);});
+ addEventListener('pageshow',e=>{if(e.persisted){void verify();clearInterval(timer);timer=setInterval(()=>void verify(),30000);}});
+ addEventListener('storage',e=>{if(e.key==='td.portal.session'&&token){try{if(JSON.parse(e.newValue||'null')?.token!==token)clearSession();}catch{clearSession();}}});
  const helpButtons=[...document.querySelectorAll('.help-trigger')];
  function closeHelp(except){for(const button of helpButtons){if(button===except)continue;button.setAttribute('aria-expanded','false');button.nextElementSibling.hidden=true;}}
  function openHelp(button){closeHelp(button);button.setAttribute('aria-expanded','true');button.nextElementSibling.hidden=false;}
@@ -131,4 +131,5 @@
    nav.replaceChildren(...areas.map(area=>{const b=node('button',area);b.type='button';b.onclick=()=>show(area);return b;}));show(areas[0]);
  }
  $('account-forms').hidden=false;
+ (async()=>{let saved;try{saved=JSON.parse(localStorage.getItem('td.portal.session')||'null');}catch{return;}if(!saved||!validToken.test(saved.token)||!Number.isFinite(saved.expires)||saved.expires<=Date.now()){try{localStorage.removeItem('td.portal.session');}catch{}return;}token=saved.token;lock(true);try{if(await verify()){playerNick=String(saved.nick||'');$('account-forms').hidden=true;$('signed-in').hidden=false;document.body.classList.add('portal-authenticated');$('identity').textContent='Bem-vindo, '+playerNick+'.';renderPortal();timer=setInterval(()=>void verify(),30000);}}finally{lock(false);}})();
 })();
