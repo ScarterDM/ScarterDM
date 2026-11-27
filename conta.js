@@ -11,8 +11,8 @@
    return {ok:response.ok,code:response.status,value:(await response.text()).trim()};
  }
  function mode(activate){$('login').hidden=activate;$('activate').hidden=!activate;$('show-login').setAttribute('aria-pressed',String(!activate));$('show-activate').setAttribute('aria-pressed',String(activate));status('');}
- function lock(value){busy=value;document.querySelectorAll('.account-card button').forEach(b=>b.disabled=value);}
- function clearSession(){playerId=null;playerNick='';$('portal-view').replaceChildren();$('portal-nav').replaceChildren();token=null;clearInterval(timer);timer=null;$('signed-in').hidden=true;$('identity').textContent='';$('account-forms').hidden=false;mode(false);}
+ function lock(value){busy=value;$('portal-loading').hidden=!value;document.querySelectorAll('.account-card button').forEach(b=>b.disabled=value);}
+ function clearSession(){document.body.classList.remove('portal-authenticated');playerId=null;playerNick='';$('portal-view').replaceChildren();$('portal-nav').replaceChildren();token=null;clearInterval(timer);timer=null;$('signed-in').hidden=true;$('identity').textContent='';$('account-forms').hidden=false;mode(false);}
  async function verify(){const current=token;if(!current)return false;try{const r=await request('session',current);if(token!==current)return false;if(r.ok&&uuid.test(r.value)){playerId=r.value;return true;}}catch{}if(token===current){clearSession();status('Sessão encerrada ou não foi possível validá-la. Entre novamente.');}return false;}
  $('show-login').onclick=()=>mode(false);$('show-activate').onclick=()=>mode(true);
  $('activate').onsubmit=async e=>{
@@ -24,11 +24,11 @@
    try{
      const r=await request('confirm-pin',nick+'\n'+pin+'\n'+password);
      if(r.ok&&r.value==='OK'){$('activate').reset();$('nick').value=nick;mode(false);status('Conta confirmada. Entre com seu nickname e sua senha.');}
-     else status(r.code===429?'Muitas tentativas. Aguarde um minuto.':'Confira a senha e o PIN. Se o PIN venceu ou atingiu o limite de tentativas, gere outro no Minecraft.');
+     else status(r.code===429?'Muitas tentativas. Aguarde um minuto.':'Confira a senha e o PIN. Se o PIN venceu ou atingiu o limite de tentativas, gere outro dentro do servidor.');
    }catch{status('Conexão indisponível. Tente novamente.');}
    finally{$('activation-password').value='';lock(false);}
  };
- $('login').onsubmit=async e=>{e.preventDefault();if(busy)return;const nick=$('nick').value.trim(),password=$('password').value;if(!nick||/[\r\n]/.test(nick)||!password)return;lock(true);status('Consultando o reino…');try{const r=await request('login',nick+'\n'+password);if(r.ok&&validToken.test(r.value)){token=r.value;if(await verify()){$('account-forms').hidden=true;$('signed-in').hidden=false;$('identity').textContent='Bem-vindo, '+nick+'.';playerNick=nick;renderPortal();status('');timer=setInterval(()=>{void verify();},30000);}}else status(r.code===429?'Muitas tentativas. Aguarde um minuto.':'Confira os dados. Se a ativação venceu, gere um PIN pelo /site no Minecraft.');}catch{status('Conexão indisponível. Tente novamente.');}finally{$('password').value='';lock(false);}};
+ $('login').onsubmit=async e=>{e.preventDefault();if(busy)return;const nick=$('nick').value.trim(),password=$('password').value;if(!nick||/[\r\n]/.test(nick)||!password)return;lock(true);status('');try{const r=await request('login',nick+'\n'+password);if(r.ok&&validToken.test(r.value)){token=r.value;if(await verify()){$('account-forms').hidden=true;$('signed-in').hidden=false;document.body.classList.add('portal-authenticated');$('identity').textContent='Bem-vindo, '+nick+'.';playerNick=nick;renderPortal();status('');timer=setInterval(()=>{void verify();},30000);}}else status(r.code===429?'Muitas tentativas. Aguarde um minuto.':'Confira os dados. Se a ativação venceu, gere um PIN pelo /site dentro do servidor.');}catch{status('Conexão indisponível. Tente novamente.');}finally{$('password').value='';lock(false);}};
  $('logout').onclick=async()=>{if(busy)return;lock(true);const current=token;clearSession();try{const r=await request('logout',current);status(r.ok?'Sessão encerrada.':'Sessão local encerrada; servidor não confirmou a revogação.');}catch{status('Sessão local encerrada; servidor não confirmou a revogação.');}finally{lock(false);}};
  addEventListener('pagehide',()=>{const current=token;token=null;clearInterval(timer);if(current)fetch(api+'logout',{method:'POST',headers:{'Content-Type':'application/octet-stream'},body:current,credentials:'omit',keepalive:true,redirect:'error'}).catch(()=>{});});
  addEventListener('pageshow',e=>{if(e.persisted){clearSession();lock(false);}});
@@ -47,18 +47,22 @@
        const d=JSON.parse(r.value);
        if(d.uuid!==playerId)throw Error('Identidade inválida');
        target.replaceChildren();
-       const add=(label,value)=>{if(value!==undefined&&value!==null)target.append(node('p',label+': '+String(value)));};
-       add('Nickname',d.nick);add('Estado',d.online?'Online':'Offline');
+       const add=(label,value)=>{if(value!==undefined&&value!==null)(target.querySelector('.character-details')||target).append(node('p',label+': '+String(value)));};
+       const hero=node('div','');hero.className='character-hero';const crest=node('div','♜');crest.className='character-crest';const bio=node('div','');bio.append(node('span','FICHA DO PERSONAGEM'),node('h2',d.nick),node('p',(d.race||'Raça não informada')+' · '+(d.online?'Online':'Offline')));hero.append(crest,bio);target.append(hero);
+       const stats=node('div','');stats.className='character-stats';target.append(stats);
+       const stat=(icon,label,value)=>{if(value===undefined||value===null)return;const card=node('div','');card.className='character-stat';card.append(node('span',icon+' '+label),node('strong',String(value)));stats.append(card);};
+       stat('♥','Vida',Number.isFinite(d.health)&&Number.isFinite(d.maxHealth)?d.health+' / '+d.maxHealth:null);stat('✦','Nível',d.level);stat('🍗','Fome',d.food);stat('◈','Saldo',d.wallet);
+       if(Number.isFinite(d.xp)){const xp=node('div','');xp.className='xp-panel';const bar=document.createElement('progress');bar.max=1;bar.value=Math.max(0,Math.min(1,d.xp));xp.append(node('span','Experiência · '+Math.round(d.xp*100)+'%'),bar);target.append(xp);}
+       const details=node('div','');details.className='character-details';target.append(details);
        add('Mundo',d.world);if([d.x,d.y,d.z].every(Number.isFinite))add('Coordenadas',[d.x,d.y,d.z].join(', '));
-       if(Number.isFinite(d.health)&&Number.isFinite(d.maxHealth))add('Vida',d.health+' / '+d.maxHealth);
-       add('Fome',d.food);add('Nível',d.level);if(Number.isFinite(d.xp))add('Progresso XP',Math.round(d.xp*100)+'%');
-       for(const [label,key] of [['Raça','race'],['Clã','clan'],['Cargos','roles'],['Saldo','wallet'],['Dívida','debt'],['Sexo','sex'],['Idade','age']])add(label,d[key]);
-       if(Array.isArray(d.achievements)){target.append(node('h4','Conquistas'));for(const a of d.achievements)target.append(node('p',String(a)));}
+       
+       for(const [label,key] of [['Raça','race'],['Clã','clan'],['Cargos','roles'],['Dívida','debt'],['Sexo','sex'],['Idade','age']])add(label,d[key]);
+       if(Array.isArray(d.achievements)){const trophies=node('details','');trophies.className='achievement-panel';trophies.append(node('summary','🏆 Conquistas · '+d.achievements.length));for(const a of d.achievements)trophies.append(node('p',String(a).replaceAll('_',' ')));target.append(trophies);}
        if(Number.isFinite(d.updatedAt))add('Atualizado',new Date(d.updatedAt*1000).toLocaleString('pt-BR'));
        for(const [label,key,count] of [['Inventário','inventory',36],['Armaduras','equipment',4]]){
          if(!Array.isArray(d[key]))continue;
          target.append(node('h4',label));const grid=node('div','');grid.className='inventory-grid';
-         for(let i=0;i<count;i++){const item=d[key].find(x=>x&&x.slot===i);const slot=node('div',item?String(item.type).replace(/^minecraft:/,'').replaceAll('_',' ')+' ×'+item.amount:'Vazio');slot.className='inventory-slot';grid.append(slot);}
+         for(let i=0;i<count;i++){const item=d[key].find(x=>x&&x.slot===i);const slot=node('div',item?String(item.type).replace(/^minecraft:/,'').replaceAll('_',' ')+' ×'+item.amount:'Vazio');slot.className='inventory-slot'+(item?' filled':'');if(!item)slot.textContent='';else slot.title=String(item.type)+' ×'+item.amount;grid.append(slot);}
          target.append(grid);
        }
      }catch{if(token===current&&version===generation)target.textContent='Não foi possível consultar o perfil.';}
@@ -104,11 +108,11 @@
      view.replaceChildren(node('h3',area));
      const p=t=>view.append(node('p',t));
      const link=(label,url)=>{const a=node('a',label);a.href=url;a.className='text-link';view.append(a);};
-     if(area===areas[0]){p('Nickname: '+playerNick);p('Identificador da conta: '+playerId);const target=node('div','Consultando perfil…');view.append(target);void loadProfile(target,version);}
+     if(area===areas[0]){const target=node('div','Consultando perfil…');view.append(target);void loadProfile(target,version);}
      if(area===areas[1]){p('A leitura pública está disponível. A redação aguarda uma API de permissões e publicação autenticada.');link('Ler a Gazeta','noticias.html');}
      if(area===areas[2])p('A composição real das instituições ainda não está disponível pela API.');
      if(area===areas[3])p('A consulta de leis e as votações aguardam integração com o sistema legislativo.');
-     if(area===areas[4]){p('Sessão verificada pelo TD-Central.');p('Para alterar a senha ou renovar a ativação, utilize /site no Minecraft.');void privacy(version);}
+     if(area===areas[4]){p('Sessão verificada pelo TD-Central.');p('Para alterar a senha ou renovar a ativação, utilize /site dentro do servidor.');void privacy(version);}
      if(area===areas[5])citizens(version);
    }
    nav.replaceChildren(...areas.map(area=>{const b=node('button',area);b.type='button';b.onclick=()=>show(area);return b;}));show(areas[0]);
