@@ -29,3 +29,35 @@ body[data-realm] .rpg-dashboard .character-hero{background:var(--realm-panel)!im
 body[data-realm] .rpg-portrait{background-image:var(--realm-character,none)!important;background-size:contain!important;background-position:bottom center!important;background-color:transparent!important}
 body[data-realm] .rpg-dashboard .inventory-grid{justify-items:stretch;gap:4px;max-width:440px}
 body[data-realm] .rpg-dashboard .inventory-slot{width:100%;max-width:none;max-height:none;aspect-ratio:1}
+
+/* Unified medieval dashboard, shared by every realm. */
+body.portal-authenticated[data-realm]{--realm:#d7b66c;--realm-panel:#0c1812;--realm-bg:#09120d}
+body.portal-authenticated[data-realm] .account-card{border:0!important;border-radius:0;box-shadow:none;background:transparent!important;max-width:1800px!important;padding:0!important}
+body.portal-authenticated .account-main{align-items:flex-start;padding:0!important}
+body.portal-authenticated[data-realm] #signed-in{display:grid;grid-template-columns:190px minmax(0,1fr);grid-template-rows:1fr auto;gap:0;min-height:calc(100dvh - 65px)}
+body.portal-authenticated[data-realm] #portal-nav{grid-column:1;grid-row:1;align-self:stretch;background:#07120de8;border-right:1px solid #aa894c;padding:22px 12px;gap:6px}
+body.portal-authenticated[data-realm] #portal-nav button{border:1px solid transparent;border-radius:3px;background:transparent;font-size:.9rem;padding:12px;text-align:left}
+body.portal-authenticated[data-realm] #portal-nav button[aria-pressed=true]{background:linear-gradient(100deg,#e4bd65,#9b6d27);color:#101710;border-color:#e8c778}
+body.portal-authenticated[data-realm] #portal-view{grid-column:2;grid-row:1/3;margin:0;padding:18px;border:0;background:transparent!important;border-radius:0}
+body.portal-authenticated[data-realm] #logout{grid-column:1;grid-row:2;margin:10px;font-size:.8rem}
+body.portal-authenticated #portal-view>h3{font: bold clamp(1.6rem,2.3vw,2.2rem) Georgia,serif;color:#e6c47b;margin:0 0 12px}
+body[data-realm] .theme-preview{border:0;background:#08140db0;padding:4px 8px;gap:8px;margin-bottom:10px}
+body[data-realm] .rpg-dashboard{grid-template-columns:minmax(0,.85fr) minmax(0,1fr) minmax(0,1.3fr);gap:12px;align-items:stretch}
+body[data-realm] .rpg-portrait{grid-column:auto;min-height:420px;background-image:linear-gradient(0deg,#08140dcc,transparent 35%),var(--realm-scene,url('assets/reino-trindade.webp'))!important;background-size:cover!important;background-position:center!important;border:1px solid #c9a75f;border-radius:9px 2px}
+body[data-realm] .rpg-column{gap:10px}
+body[data-realm] .rpg-dashboard :is(.character-hero,.character-details,.rpg-panel,.achievement-panel){background:linear-gradient(125deg,#09160ff2,#0b130ee8)!important;border:1px solid #ad8d4c;border-radius:8px 2px;padding:12px;box-shadow:inset 0 0 0 3px #b99a5810,0 4px 14px #0005}
+body[data-realm] .rpg-dashboard .character-hero{min-height:95px;gap:12px}
+body[data-realm] .rpg-dashboard .character-crest{width:54px;height:64px;background:#0a1b12;border:2px double #d4b46a;box-shadow:none;color:#e7c46d}
+body[data-realm] .rpg-dashboard .character-hero h2{font: bold 1.6rem Georgia,serif;color:#f2e4c8}
+body[data-realm] .rpg-dashboard .character-details p{background:transparent;border:0;border-bottom:1px solid #a68a4d30;padding:7px 0;font-size:.84rem}
+body[data-realm] .rpg-dashboard .character-stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}
+body[data-realm] .rpg-dashboard .character-stat{background:transparent;border:0;padding:4px}
+body[data-realm] .rpg-dashboard .xp-panel{background:transparent;border:0;padding:4px;margin-bottom:8px}
+body[data-realm] .xp-panel progress{accent-color:#ba70e7}
+body[data-realm] .rpg-dashboard .inventory-grid{max-width:none;margin:5px 0;gap:4px}
+body[data-realm] .rpg-dashboard .inventory-slot{background:#101a13;border:1px solid #78643c;border-radius:4px}
+body[data-realm] .rpg-dashboard .equipment-grid{grid-template-columns:repeat(4,minmax(0,55px))!important}
+body[data-realm] .rpg-dashboard .medal-grid{max-height:155px;margin-top:8px;gap:5px}
+body[data-realm] .rpg-dashboard .medal{background:#0b1810;border:1px solid #77623b;border-radius:4px}
+@media(max-width:1100px){body[data-realm] .rpg-dashboard{grid-template-columns:minmax(0,1fr) minmax(0,1.3fr)}body[data-realm] .rpg-portrait{grid-column:1/-1;min-height:160px;max-height:200px}}
+@media(max-width:700px){body.portal-authenticated[data-realm] #signed-in{display:block}body.portal-authenticated[data-realm] #portal-nav{display:flex;flex-wrap:nowrap;overflow-x:auto;padding:8px;border-right:0}body.portal-authenticated[data-realm] #portal-nav button{white-space:nowrap;padding:8px}body.portal-authenticated[data-realm] #portal-view{padding:10px}body[data-realm] .rpg-dashboard{grid-template-columns:minmax(0,1fr)}body[data-realm] .rpg-portrait{min-height:145px}body[data-realm] .rpg-dashboard .medal-grid{max-height:190px}}
